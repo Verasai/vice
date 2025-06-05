@@ -305,7 +305,7 @@ const widgetFrame = document.getElementById('spotifyWidget');
 
 if (listening) {
   const trackId = listening.sync_id;
-  activityText = `<img src="Spotify.png" alt="Spotify" style="height:1em;vertical-align:middle;margin-right:.35em;">${listening.details} – ${listening.state}`;
+  activityText = `<img src="Spotify.png" alt="Spotify" style="height:1em;vertical-align:middle;margin-right:.35em;width:30px;height:30px;object-fit:contain;filter:drop-shadow(0 0 4px #cd2143);transition:transform .3s;">${listening.details} – ${listening.state}`;
 
   // Show Spotify widget
   if (trackId) {
@@ -315,7 +315,7 @@ if (listening) {
     widgetWrapper.style.display = 'none';
   }
 } else if (playing) {
-  activityText = `<img src="Steam.png" alt="Steam" style="height:1.6em;vertical-align:middle;margin-right:.35em;"> ${playing.name}`;
+  activityText = `<img src="Steam.png" alt="Steam" style="height:1em;vertical-align:middle;margin-right:.35em;width:30px;height:30px;object-fit:contain;filter:drop-shadow(0 0 4px #cd2143);transition:transform .3s;"> ${playing.name}`;
   widgetWrapper.style.display = 'none';
 } else if (custom && custom.state) {
   activityText = custom.state;
