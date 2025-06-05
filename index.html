@@ -186,6 +186,8 @@
     <div class="social-links">
       <a href="https://discord.com/users/807419687973290035" target="_blank" title="Discord"><img src="discord-icon.png" alt="Discord" class="social-icon"></a>
       <a href="https://www.roblox.com/users/338910414/profile" target="_blank" title="Roblox"><img src="roblox-icon.svg" alt="Roblox" class="social-icon"></a>
+      <a href="https://open.spotify.com/user/YOURUSERHERE" target="_blank" title="Spotify"><img src="Spotify.png" alt="Spotify" class="social-icon"></a>
+      <a href="https://steamcommunity.com/profiles/YOURSTEAMIDHERE/" target="_blank" title="Steam"><img src="Steam.png" alt="Steam" class="social-icon"></a>
     </div>
   </div>
   <div class="discord-presence" id="presenceCard" style= "height: 170px; min-height: 170px;background-image:url('banner.gif')">
@@ -195,6 +197,28 @@
       <div id="discordStatus" class="discord-activity" style= "font-size: 20px;">Loading activity...</div>
     </div>
   </div>
+  <div id="spotifyWidgetWrapper" style="
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(255, 0, 0, 0.05);
+  border-radius: 16px;
+  border: 1px solid #cd2143;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0 8px rgba(170, 7, 39, 0.774);
+  margin-top: 1rem;
+">
+  <iframe id="spotifyWidget" style="
+    border-radius: 12px;
+    width: 100%;
+    width: 550px;
+    min-width: 550px;
+    height: 160px;
+    min-height: 160px;
+    border: none;
+  " frameborder="0" allowtransparency="true" allow="encrypted-media" src=""></iframe>
+</div>
   <script>
     const overlay = document.querySelector('.overlay');
     const mainContent = document.getElementById('mainContent');
@@ -279,11 +303,30 @@
         const listening = activities.find(a => a.type === 2 && a.name === 'Spotify');
         const custom = activities.find(a => a.type === 4);
 
-        if (listening) activityText = `Listening to ${listening.details}`;
-        else if (playing) activityText = `Playing ${playing.name}`;
-        else if (custom && custom.state) activityText = custom.state;
+        if (listening) {
+  const trackId = listening.sync_id;
+  activityText = `<img src="Spotify.png" alt="Spotify" style="height:1em;vertical-align:middle;margin-right:.35em;">${listening.details} – ${listening.state}`;
 
-        document.getElementById('discordStatus').textContent = activityText;
+  // Show Spotify widget
+  if (trackId) {
+    widgetFrame.src = `https://open.spotify.com/embed/track/${trackId}`;
+    widgetWrapper.style.display = 'flex';
+  } else {
+    widgetWrapper.style.display = 'none';
+  }
+} else if (playing) {
+  activityText = `<img src="Steam.png" alt="Steam" style="height:1em;vertical-align:middle;margin-right:.35em;"> ${playing.name}`;
+  widgetWrapper.style.display = 'none';
+} else if (custom && custom.state) {
+  activityText = custom.state;
+  widgetWrapper.style.display = 'none';
+} else {
+  widgetWrapper.style.display = 'none';
+}
+
+document.getElementById('discordStatus').innerHTML = activityText;
+
+
       } catch (err) {
         console.error('Failed to fetch Discord presence:', err);
       }
