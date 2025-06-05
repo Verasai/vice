@@ -194,7 +194,7 @@
     <img id="discordAvatar" class="discord-avatar" src="" alt="Avatar" style= "height: 120px; min-height: 120px; width: 120px; min-width: 120px;">
     <div class="discord-info">
       <div id="discordUsername" class="discord-username"><span id="usernameText" style= "font-size: 24px;">Loading...</span><span id="badgeContainer" class="discord-badges"></span><span class="status-dot offline" id="statusDot"></span></div>
-      <div id="discordStatus" class="discord-activity" style= "font-size: 20px;">🌿🚬🚬</div>
+      <div id="discordStatus" class="discord-activity" style= "font-size: 20px;">Loading activity...</div>
     </div>
   </div>
   <div id="spotifyWidgetWrapper" style="
@@ -284,26 +284,26 @@
         }
       });
     }
-    async function fetchDiscordPresence() {
+    async function fetchPresence(){
       try {
         const res = await fetch(`https://api.lanyard.rest/v1/users/${discordUserId}`);
-        const data = await res.json();
-        if (!data.success) return;
-        const user = data.data.discord_user;
-        const status = data.data.discord_status;
-        const activities = data.data.activities;
-        const avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.gif`;
-        document.getElementById('discordAvatar').src = avatarUrl;
-        document.getElementById('usernameText').textContent = user.username;
-        document.getElementById('statusDot').className = `status-dot ${status}`;
-        renderBadges(user.public_flags);
+        const { data } = await res.json();
+        const { discord_status, discord_user, activities, public_flags } = data;
+
+        document.getElementById('discordAvatar').src = `https://cdn.discordapp.com/avatars/${discord_user.id}/${discord_user.avatar}.webp?size=128`;
+        document.getElementById('usernameText').textContent = discord_user.username;
+        const dot = document.getElementById('statusDot');
+        dot.className = 'status-dot ' + (discord_status || 'offline');
 
         let activityText = '🌿🚬🚬';
         const playing = activities.find(a => a.type === 0);
         const listening = activities.find(a => a.type === 2 && a.name === 'Spotify');
         const custom = activities.find(a => a.type === 4);
 
-        if (listening) {
+        const widgetWrapper = document.getElementById('spotifyWidgetWrapper');
+const widgetFrame = document.getElementById('spotifyWidget');
+
+if (listening) {
   const trackId = listening.sync_id;
   activityText = `<img src="Spotify.png" alt="Spotify" style="height:1em;vertical-align:middle;margin-right:.35em;">${listening.details} – ${listening.state}`;
 
@@ -315,7 +315,7 @@
     widgetWrapper.style.display = 'none';
   }
 } else if (playing) {
-  activityText = `<img src="Steam.png" alt="Steam" style="height:1em;vertical-align:middle;margin-right:.35em;"> ${playing.name}`;
+  activityText = `<img src="Steam.png" alt="Steam" style="height:1.6em;vertical-align:middle;margin-right:.35em;"> ${playing.name}`;
   widgetWrapper.style.display = 'none';
 } else if (custom && custom.state) {
   activityText = custom.state;
@@ -326,14 +326,22 @@
 
 document.getElementById('discordStatus').innerHTML = activityText;
 
-
+        const badgeContainer = document.getElementById('badgeContainer');
+        badgeContainer.innerHTML = '';
+        Object.entries(badgeMap).forEach(([bit, url]) => {
+          if (public_flags & bit) {
+            const img = document.createElement('img');
+            img.src = url;
+            badgeContainer.appendChild(img);
+          }
+        });
       } catch (err) {
         console.error('Failed to fetch Discord presence:', err);
+        document.getElementById('discordStatus').textContent = 'Error loading presence';
       }
     }
-    fetchDiscordPresence();
-    setInterval(fetchDiscordPresence, 15000);
-  </script>
+    fetchPresence();
+    setInterval(fetchPresence, 15000);  </script>
   <div style="margin-top:2rem;padding:1rem;border:1px solid #cd2143;border-radius:12px;color:#ffffff;font-family:'Press Start 2P',cursive;background:rgba(65, 18, 18, 0.4);text-align:center">reading yuri like a refined individual
   </div>
 </body>
